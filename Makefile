@@ -1,4 +1,3 @@
-NAME_BONUS = bot
 NAME = ircserv
 
 MAKEFLAGS = --silent
@@ -10,8 +9,6 @@ CXXFLAGS = -Wall -Wextra -Werror -std=c++98
 SRCDIR = SRC
 CMDDIR = CMD
 OBJDIR = OBJ
-BONUSDIR = BONUS
-OBJBONUSDIR = OBJ_BONUS
 
 MKDIR = mkdir -p
 RM = rm -f
@@ -23,8 +20,6 @@ RESET := \033[0m
 SRC = $(shell find $(SRCDIR) $(CMDDIR) -name '*.cpp')
 OBJ = $(SRC:$(SRCDIR)/%.cpp=$(OBJDIR)/%.o)
 OBJ := $(OBJ:$(CMDDIR)/%.cpp=$(OBJDIR)/%.o)
-SRC_BONUS = $(shell find $(BONUSDIR) -name '*.cpp')
-OBJ_BONUS = $(SRC_BONUS:$(BONUSDIR)/%.cpp=$(OBJBONUSDIR)/%.o)
 
 all: $(NAME)
 
@@ -42,11 +37,6 @@ $(OBJDIR)/%.o: $(CMDDIR)/%.cpp
 	$(CC) $(CXXFLAGS) -c $< -o $@
 	@echo -ne "$(GREEN).$(RESET)"
 
-$(OBJBONUSDIR)/%.o: $(BONUSDIR)/%.cpp
-	$(MKDIR) $(dir $@)
-	$(CC) $(CXXFLAGS) -c $< -o $@
-	@echo -ne "$(GREEN).$(RESET)"
-
 setup:
 	@sudo echo -ne "$(YELLOW)Checking Sudo... $(RESET)" || exit 1 && echo "$(GREEN) OK! $(RESET)"
 	@echo -e "$(YELLOW)Changing sudo permissions... $(RESET)"
@@ -57,22 +47,16 @@ setup:
 	@echo -e "$(YELLOW)\nBase Setup installed. \n\n$(RED)System will reboot in 30s...\n$(RESET)"
 	@sleep 30 && sudo reboot now
 
-bonus: $(OBJ_BONUS)
-	@$(CC) $(CFLAGS) -o $(NAME_BONUS) $(OBJ_BONUS)
-	@echo -e "$(YELLOW) $(NAME) bonus compiled $(GREEN)[OK]$(RESET)"
-
 remove_sudoers:
 	@sudo rm /etc/sudoers.d/$(USER)-permissions
 	@echo -e "$(YELLOW) Removed sudoers configuration for $(USER) $(RESET)"
 
 clean:
 	$(RM) -r $(OBJDIR)
-	$(RM) -r $(OBJBONUSDIR)
 	@echo -e "$(YELLOW) $(NAME) cleaned $(GREEN)[OK]$(RESET)"
 
 fclean: clean
 	$(RM) $(NAME)
-	$(RM) $(NAME_BONUS)
 
 re: fclean all
 
