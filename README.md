@@ -151,4 +151,5 @@ KICK #<CHANNEL_NAME> <MY_NICKNAME> [<REASON>]
 
 ## Conclusion
 
-O ft_irc permite a criação e gerenciamento de um servidor IRC com suporte para várias funcionalidades essenciais do protocolo IRC. Você poderá iniciar o servidor, conectar-se, autenticar usuários, participar de canais, trocar mensagens e muito mais.
+ft_irc allows you to create and manage an IRC server with support for several essential features of the IRC protocol.
+You can start the server, connect, authenticate users, join channels, exchange messages and much more.
