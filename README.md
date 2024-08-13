@@ -19,7 +19,7 @@ ft_irc is a Internet Relay Chat (IRC) server implemented in C++. IRC its a proto
 
 ## Installation
 
-```bash
+```IRC
 git clone git@github:Thfirmin/ft-irc.git
 cd ft_irc
 make
@@ -32,7 +32,7 @@ make
 
 To start the server:
 
-```bash
+```IRC
 ./ircserv <PORT_NUMBER> <PASSWORD>
 ```
 
@@ -40,13 +40,13 @@ To start the server:
 
 At this point, the server'll be in execution and ready for connections. You can use any IRC client or simply use the `nc` (NetCat) tool like this:
 
-```bash
+```IRC
 nc localhost <PORT_NUMBER>
 ```
 
 After this, authenticate your clinet using the following commands:
 
-```bash
+```IRC
 PASS <PASSWORD>
 NICK <NICKNAME>
 USER <USERNAME> 0 * <REAL_NAME>
@@ -61,7 +61,7 @@ After start the server and connect to it, you can use many commands to intercat 
 
 to change your nickname, use:
 
-```bash
+```IRC
 NICK <NEW_NICKNAME>
 ```
 
@@ -87,10 +87,11 @@ PRIVMSG #<CHANNEL_NAME> : <MESSAGE>
 
 To disconnect the server, use `QUIT` command:
 
-```bash
-QUIT : <MESSAGE>
+```IRC
+QUIT [:<MESSAGE>]
 ```
 
+> The message is optional
 
 ### Channel Commands
 
@@ -99,11 +100,12 @@ QUIT : <MESSAGE>
 
 To join in a channel, use `JOIN` command:
 
-```bash
-JOIN #<CHANNEL_NAME>
+```IRC
+JOIN #<CHANNEL_NAME> [<PASSWORD>]
 ```
 
 > If the channel doesn't exist, the server'll cretae one and insert you as ther first participant
+> Use the third argument if channel have password
 
 After entering the channel, you'll see a welcome message followed by a user list on the channel.
 
@@ -112,9 +114,36 @@ After entering the channel, you'll see a welcome message followed by a user list
 
 To invite a user to the channel, use `INVITE` command:
 
-```bash
+```IRC
 INVITE <NICKNAME> #<CHANNEL_NAME>
 ```
+
+#### Change Topic of Channel
+---
+
+To change the topic of channel use `TOPIC` command:
+
+```IRC
+TOPIC #<CHANNEL_NAME> <NEW_TOPIC>
+```
+
+#### Change Mode Setting of Channel
+---
+
+To change mode of setting the channel, use the command `MODE` command:
+
+```IRC
+MODE #<CHANNEL_NAME> +/-<MODE> [<PARAMETER>]
+```
+
+> Use `+` to apply the mode and `-` to exclude the mode
+> Some modes need aditional parameter
+
+- i: Just invited user can join the channel
+- k: Appy password to enter the channel (Need argument: <PASSWORD>)
+- o: Give operator (ADM) access to a user (Need argument: <NICKNAME>)
+- t: Only operators can change topic of the channel
+- l: Give Channel maximum number of users (Need argument: <MAX_SIZE>)
 
 #### Kick From the Channel
 ---
@@ -122,10 +151,10 @@ INVITE <NICKNAME> #<CHANNEL_NAME>
 To kick a user from the channel, you can use `KICK` command:
 
 ```bash
-KICK #<CHANNEL_NAME> <NICKNAME> [<REASON>]
+KICK #<CHANNEL_NAME> <NICKNAME> [:<REASON>]
 ```
 
-> Reason is optional and may be only one word (can't have space character in there)
+> Reason is optional
 
 #### Leave the Channel
 ---
@@ -133,21 +162,17 @@ KICK #<CHANNEL_NAME> <NICKNAME> [<REASON>]
 To leave the channel, you can use `PART` command:
 
 ```bash
-PART #<CHANNEL_NAME> [<REASON>]
+PART #<CHANNEL_NAME> [:<REASON>]
 ```
 
-> Reason is optional and may be only one word (can't have space character in there)
+> Reason is optional
 
 Or `KICK` command using your own nickname as argument:
 
 ```bash
-KICK #<CHANNEL_NAME> <MY_NICKNAME> [<REASON>]
+KICK #<CHANNEL_NAME> <MY_NICKNAME> [:<REASON>]
 ```
 
-1. **Set user as channel operator:**
-   ```bash
-   mode <#channel> o <user>
-   ```
 
 ## Conclusion
 
