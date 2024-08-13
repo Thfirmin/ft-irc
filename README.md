@@ -1,222 +1,154 @@
 # ft-irc
 
-Simple IRC server project from 42 school
+This is a simple IRC server project from 42 school
 
-## Descrição
 
-ft_irc é um servidor de Internet Relay Chat (IRC) em C++. O IRC é um protocolo para mensagens em tempo real e comunicação em um ambiente de rede distribuída.
+## Summary
 
-## Funcionalidades
-- Arquitetura para lidar com conexões simultâneas de clientes.
-- Suporte para múltiplas conexões simultâneas.
-- Criação e gerenciamento de canais IRC.
-- Autenticação e registro de usuários.
-- Transmissão de mensagens para todos os usuários em um canal.
-- Mensagens privadas entre usuários.
-- Manipulação de vários comandos IRC, como join, PRIVMSG, part, etc.
-- Suporte para apelidos de usuários e nomes de canais.
-- participação em canais e conversas em grupo.
-- Envio e recebimento de mensagens.
-- Alteração de apelidos de usuários.
-- Envio de mensagens privadas para outros usuários.
-- Compatibilidade com cliente IRC (hexchat).
+- [Description][##Description]
+- [Installation][##Installation]
+- [Usation][##Usation]
 
-## Instalação
+
+## Description
+
+ft_irc is a Internet Relay Chat (IRC) server implemented in C++. IRC its a protocol for message in real time and communication on a distributed network environment.
+
+> Compatible with IRC client (HexChat).
+
+
+## Installation
+
 ```bash
-git clone <repository_url>
+git clone git@github:Thfirmin/ft-irc.git
 cd ft_irc
 make
 ```
 
-## Uso
-Para iniciar o servidor:
+
+## Usation
+
+### Starting
+
+To start the server:
+
 ```bash
-./ircserv <número da porta> <senha>
-```
-Neste ponto, o servidor estará em execução e pronto para conexões. Você pode usar qualquer cliente IRC ou simplesmente usar a ferramenta `nc` (NetCat) assim:
-```bash
-nc localhost <número da porta>
-```
-Depois disso, autentique seu cliente usando os seguintes comandos:
-```bash
-pass <senha>
-nick <apelido>
-user <nome de usuário> 0 * <nome real>  # Deve ser composto por 4 argumentos
+./ircserv <PORT_NUMBER> <PASSWORD>
 ```
 
-## Funcionalidade Extra (BONUS)
-Para a parte bônus, há um bot cliente que envia requisições a um LLM local (ollama). Para usar o bot, você pode executar:
+### Connecting
+
+At this point, the server'll be in execution and ready for connections. You can use any IRC client or simply use the `nc` (NetCat) tool like this:
+
 ```bash
-make bonus
-./bot <endereço> <porta> <senha> <nome_do_bot>
-```
-Você pode se comunicar com o bot usando outro cliente através do comando `PRIVMSG`, como:
-```bash
-privmsg bot :sua pergunta
-```
-E o bot responderá:
-```bash
-:bot!~bot@localhost PRIVMSG user :resposta
+nc localhost <PORT_NUMBER>
 ```
 
-## Exemplos de Uso do Servidor IRC
+After this, authenticate your clinet using the following commands:
 
-Depois de iniciar o servidor e se conectar a ele, você pode usar vários comandos para interagir com outros usuários e gerenciar canais.
-
-### Criação e participação em Canais
-
-#### Criar e Entrar em um Canal
 ```bash
-join #novocanal
-```
-Após entrar no canal, você verá uma mensagem de boas-vindas e a lista de usuários no canal.
-
-#### Enviar Mensagens para um Canal
-Para enviar uma mensagem para todos os usuários de um canal, use:
-```bash
-PRIVMSG #novocanal :Olá pessoal!
+PASS <PASSWORD>
+NICK <NICKNAME>
+USER <USERNAME> 0 * <REAL_NAME>
 ```
 
-### Mensagens Privadas
+> The `0` and `*` arguments are needed and constant, don't change them!!!
 
-#### Enviar uma Mensagem Privada para um Usuário
-Para enviar uma mensagem privada para um usuário específico, use:
+After start the server and connect to it, you can use many commands to intercat with other users and manage channels.
+
+
+### Changing Nickname
+
+to change your nickname, use:
+
 ```bash
-PRIVMSG user :Oi, como vai?
+NICK <NEW_NICKNAME>
 ```
 
-### Mudança de Nickname
 
-#### Alterar o Nickname
-Para mudar seu nickname, use:
-```bash
-NICK novo_nickname
+### Send Message
+
+Use `PRIVMSG` to send a message
+
+To send it to an user, insert him nickname at this form:
+
+```IRC
+PRIVMSG <NICKNAME> : <MESSAGE>
 ```
 
-### Sair de um Canal
+To send it to a channel, insert `#` with the channel name at this form:
 
-#### Sair de um Canal
-Para sair de um canal, use:
-```bash
-part #novocanal
+```IRC
+PRIVMSG #<CHANNEL_NAME> : <MESSAGE>
 ```
 
-### Desconexão do Servidor
 
-#### Desconectar do Servidor
-Para se desconectar do servidor, use:
+### Leave the Server
+
+To disconnect the server, use `QUIT` command:
+
 ```bash
-QUIT :Até mais!
+QUIT : <MESSAGE>
 ```
 
-## Comandos Adicionais do IRC
 
-Aqui estão alguns comandos adicionais que você pode achar úteis:
+### Channel Commands
 
-### Listar Canais Disponíveis
+#### Join/Create a Channel
+---
+
+To join in a channel, use `JOIN` command:
+
 ```bash
-LIST
+JOIN #<CHANNEL_NAME>
 ```
 
-### Obter Informações Sobre um Usuário
+> If the channel doesn't exist, the server'll cretae one and insert you as ther first participant
+
+After entering the channel, you'll see a welcome message followed by a user list on the channel.
+
+#### Invite to the Channel
+---
+
+To invite a user to the channel, use `INVITE` command:
+
 ```bash
-WHOIS apelido_usuario
+INVITE <NICKNAME> #<CHANNEL_NAME>
 ```
 
-### Enviar Notificações a Todos os Usuários
-Para enviar uma notificação global (geralmente reservado para operadores):
+#### Kick From the Channel
+---
+
+To kick a user from the channel, you can use `KICK` command:
+
 ```bash
-WALLOPS :Mensagem para todos
+KICK #<CHANNEL_NAME> <NICKNAME> [<REASON>]
 ```
 
-## Exemplos de Sessões Completas
+> Reason is optional and may be only one word (can't have space character in there)
 
-### Exemplo 1: Sessão Básica de Chat
+#### Leave the Channel
+---
 
-1. **Iniciar o servidor:**
-   ```bash
-   ./ircserv 4444 mypassword
-   ```
+To leave the channel, you can use `PART` command:
 
-2. **Conectar ao servidor:**
-   ```bash
-   nc localhost 4444
-   ```
+```bash
+PART #<CHANNEL_NAME> [<REASON>]
+```
 
-3. **Autenticar e registrar:**
-   ```bash
-   pass mypassword
-   nick usuario1
-   user usuario1 0 * NomeCompleto
-   ```
+> Reason is optional and may be only one word (can't have space character in there)
 
-4. **Criar e entrar em um canal:**
-   ```bash
-   join #geral
-   ```
+Or `KICK` command using your own nickname as argument:
 
-5. **Enviar uma mensagem para o canal:**
-   ```bash
-   PRIVMSG #geral :Oi, estou testando o servidor IRC!
-   ```
-
-6. **Sair do canal e desconectar:**
-   ```bash
-   part #geral
-   QUIT :Até a próxima!
-   ```
-
-### Exemplo 2: Sessão com Mensagem Privada e Mudança de Apelido
-
-1. **Iniciar o servidor:**
-   ```bash
-   ./ircserv 4444 mypassword
-   ```
-
-2. **Conectar ao servidor:**
-   ```bash
-   nc localhost 4444
-   ```
-
-3. **Autenticar e registrar:**
-   ```bash
-   pass mypassword
-   nick usuario2
-   user usuario2 0 * OutroNome
-   ```
-
-4. **Enviar uma mensagem privada:**
-   ```bash
-   PRIVMSG usuario1 :Olá, você está aí?
-   ```
-
-5. **Mudar de apelido:**
-   ```bash
-   NICK novo_usuario2
-   ```
-
-6. **Desconectar:**
-   ```bash
-   QUIT :Tchau!
-   ```
-
-### Exemplo 3: Mudança de modo do canal
+```bash
+KICK #<CHANNEL_NAME> <MY_NICKNAME> [<REASON>]
+```
 
 1. **Set user as channel operator:**
    ```bash
    mode <#channel> o <user>
    ```
 
-2. **Operator command:**
-   ```bash
-   kick <#channel> <user> <reason - only one word>
-   ```
-
-3. **WIP:**
-   ```bash
-   wip
-   ```
-
-## Conclusão
+## Conclusion
 
 O ft_irc permite a criação e gerenciamento de um servidor IRC com suporte para várias funcionalidades essenciais do protocolo IRC. Você poderá iniciar o servidor, conectar-se, autenticar usuários, participar de canais, trocar mensagens e muito mais.
