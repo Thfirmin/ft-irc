@@ -1,13 +1,5 @@
 #include "../INC/Server.hpp"
 
-/**
- * Divide e une as partes de um comando em tokens para processamento.
- * 
- * @param token O vetor de pares de strings que armazenará os tokens divididos.
- * @param cmd O comando a ser dividido em tokens.
- * @param fd O descritor de arquivo do cliente que enviou o comando.
- * @return Retorna 1 se a divisão e união foram bem-sucedidas, 0 caso contrário.
- */
 int Server::SplitJoin(std::vector<std::pair<std::string, std::string> > &token, std::string cmd, int fd)
 {
 	std::vector<std::string> tmp;
@@ -34,9 +26,9 @@ int Server::SplitJoin(std::vector<std::pair<std::string, std::string> > &token, 
 		}
 		token[j].second = buff;
 	}
-	for (size_t i = 0; i < token.size(); i++)//erase the empty channel names
+	for (size_t i = 0; i < token.size(); i++)
 		{if (token[i].first.empty())token.erase(token.begin() + i--);}
-	for (size_t i = 0; i < token.size(); i++){//ERR_NOSUCHCHANNEL (403) // if the channel doesn't exist
+	for (size_t i = 0; i < token.size(); i++){
 		if (*(token[i].first.begin()) != '#')
 			{senderror(403, GetClient(fd)->GetNickName(), token[i].first, GetClient(fd)->GetFd(), " :No such channel\r\n"); token.erase(token.begin() + i--);}
 		else
@@ -45,12 +37,6 @@ int Server::SplitJoin(std::vector<std::pair<std::string, std::string> > &token, 
 	return 1;
 }
 
-/**
- * Procura por um cliente em todos os canais do servidor.
- * 
- * @param nickname O nome de usuário do cliente a ser procurado.
- * @return O número de vezes que o cliente foi encontrado nos canais.
- */
 int Server::SearchForClients(std::string nickname)
 {
 	int count = 0;
@@ -61,14 +47,6 @@ int Server::SearchForClients(std::string nickname)
 	return count;
 }
 
-/**
- * Verifica se um cliente foi convidado para um canal específico.
- * 
- * @param cli O ponteiro para o cliente a ser verificado.
- * @param ChName O nome do canal a ser verificado.
- * @param flag A flag que indica se o convite deve ser removido após verificação (1 para remover, 0 para não remover).
- * @return Verdadeiro se o cliente foi convidado para o canal, falso caso contrário.
- */
 bool IsInvited(Client *cli, std::string ChName, int flag){
 	if(cli->GetInviteChannel(ChName)){
 		if (flag == 1)
@@ -78,32 +56,37 @@ bool IsInvited(Client *cli, std::string ChName, int flag){
 	return false;
 }
 
-/**
- * Verifica a existência e condições para ingressar em um canal específico.
- * 
- * @param token O vetor de pares contendo os tokens do comando.
- * @param i O índice do canal no vetor de tokens.
- * @param j O índice do canal no vetor de canais do servidor.
- * @param fd O descritor de arquivo do cliente.
- */
 void Server::ExistCh(std::vector<std::pair<std::string, std::string> >&token, int i, int j, int fd)
 {
-	if (this->channels[j].GetClientInChannel(GetClient(fd)->GetNickName()))// if the client is already registered
+	if (this->channels[j].GetClientInChannel(GetClient(fd)->GetNickName()))
 		return;
-	if (SearchForClients(GetClient(fd)->GetNickName()) >= 10)//ERR_TOOMANYCHANNELS (405) // if the client is already in 10 channels
-		{senderror(405, GetClient(fd)->GetNickName(), GetClient(fd)->GetFd(), " :You have joined too many channels\r\n"); return;}
-	if (!this->channels[j].GetPassword().empty() && this->channels[j].GetPassword() != token[i].second){// ERR_BADCHANNELKEY (475) // if the password is incorrect
+	if (SearchForClients(GetClient(fd)->GetNickName()) >= 10)
+	{
+		senderror(405, GetClient(fd)->GetNickName(), GetClient(fd)->GetFd(), " :You have joined too many channels\r\n");
+		return ;
+	}
+	if (!this->channels[j].GetPassword().empty() && this->channels[j].GetPassword() != token[i].second)
+	{
 		if (!IsInvited(GetClient(fd), token[i].first, 0))
-			{senderror(475, GetClient(fd)->GetNickName(), "#" + token[i].first, GetClient(fd)->GetFd(), " :Cannot join channel (+k) - bad key\r\n"); return;}
+		{
+			senderror(475, GetClient(fd)->GetNickName(), "#" + token[i].first, GetClient(fd)->GetFd(), " :Cannot join channel (+k) - bad key\r\n");
+			return ;
+		}
 	}
-	if (this->channels[j].GetInvitOnly()){// ERR_INVITEONLYCHAN (473) // if the channel is invit only
+	if (this->channels[j].GetInvitOnly())
+	{
 		if (!IsInvited(GetClient(fd), token[i].first, 1))
-			{senderror(473, GetClient(fd)->GetNickName(), "#" + token[i].first, GetClient(fd)->GetFd(), " :Cannot join channel (+i)\r\n"); return;}
+		{
+			senderror(473, GetClient(fd)->GetNickName(), "#" + token[i].first, GetClient(fd)->GetFd(), " :Cannot join channel (+i)\r\n");
+			return ;
+		}
 	}
-	if (this->channels[j].GetLimit() && this->channels[j].GetClientsNumber() >= this->channels[j].GetLimit())// ERR_CHANNELISFULL (471) // if the channel reached the limit of number of clients
-		{senderror(471, GetClient(fd)->GetNickName(), "#" + token[i].first, GetClient(fd)->GetFd(), " :Cannot join channel (+l)\r\n"); return;}
-	// add the client to the channel
-	Client *cli = GetClient(fd);
+	if (this->channels[j].GetLimit() && this->channels[j].GetClientsNumber() >= this->channels[j].GetLimit())
+	{
+		senderror(471, GetClient(fd)->GetNickName(), "#" + token[i].first, GetClient(fd)->GetFd(), " :Cannot join channel (+l)\r\n");
+		return ;
+	}
+	Client	*cli = GetClient(fd);
 	this->channels[j].addClient(*cli);
 	if(channels[j].GetTopicName().empty())
 		_sendResponse(RPL_JOINMSG(GetClient(fd)->getHostname(),GetClient(fd)->getIpAdd(),token[i].first) + \
@@ -117,41 +100,26 @@ void Server::ExistCh(std::vector<std::pair<std::string, std::string> >&token, in
     channels[j].sendToAll(RPL_JOINMSG(GetClient(fd)->getHostname(),GetClient(fd)->getIpAdd(),token[i].first), fd);
 }
 
-/**
- * Cria um novo canal e adiciona o cliente como administrador, se as condições permitirem.
- * 
- * @param token O vetor de pares contendo os tokens do comando.
- * @param i O índice do canal no vetor de tokens.
- * @param fd O descritor de arquivo do cliente.
- */
 void Server::NotExistCh(std::vector<std::pair<std::string, std::string> >&token, int i, int fd)
 {
-	if (SearchForClients(GetClient(fd)->GetNickName()) >= 10)//ERR_TOOMANYCHANNELS (405) // if the client is already in 10 channels
+	if (SearchForClients(GetClient(fd)->GetNickName()) >= 10)
 		{senderror(405, GetClient(fd)->GetNickName(), GetClient(fd)->GetFd(), " :You have joined too many channels\r\n"); return;}
 	Channel newChannel;
 	newChannel.SetName(token[i].first);
 	newChannel.addAdmin(*GetClient(fd));
 	newChannel.setCreateiontime();
 	this->channels.push_back(newChannel);
-	// notifiy thet the client joined the channel
     _sendResponse(RPL_JOINMSG(GetClient(fd)->getHostname(),GetClient(fd)->getIpAdd(),newChannel.GetName()) + \
         RPL_NAMREPLY(GetClient(fd)->GetNickName(),newChannel.GetName(),newChannel.clientChannelList()) + \
         RPL_ENDOFNAMES(GetClient(fd)->GetNickName(),newChannel.GetName()),fd);
 }
 
-/**
- * Processa o comando JOIN, permitindo que o cliente entre em um ou mais canais.
- * 
- * @param cmd O comando recebido pelo cliente.
- * @param fd O descritor de arquivo do cliente.
- */
 void Server::Join(std::string cmd, int fd)
 {
 	std::vector<std::pair<std::string, std::string> > token;
-	// SplitJoin(token, cmd, fd);
-	if (!SplitJoin(token, cmd, fd))// ERR_NEEDMOREPARAMS (461) // if the channel name is empty
+	if (!SplitJoin(token, cmd, fd))
 		{senderror(461, GetClient(fd)->GetNickName(), GetClient(fd)->GetFd(), " :Not enough parameters\r\n"); return;}
-	if (token.size() > 10) //ERR_TOOMANYTARGETS (407) // if more than 10 Channels
+	if (token.size() > 10)
 		{senderror(407, GetClient(fd)->GetNickName(), GetClient(fd)->GetFd(), " :Too many channels\r\n"); return;}
 	for (size_t i = 0; i < token.size(); i++){
 		bool flag = false;

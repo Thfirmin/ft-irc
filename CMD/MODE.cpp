@@ -1,13 +1,5 @@
 #include "../INC/Server.hpp"
 
-/**
- * Gera uma string representando um modo de operação a ser adicionado a uma cadeia de modos.
- * 
- * @param chain A cadeia de modos existente.
- * @param opera O operador (+ ou -) para adicionar à cadeia de modos.
- * @param mode O modo a ser adicionado à cadeia de modos.
- * @return Uma string representando o modo a ser adicionado.
- */
 std::string Server::modeToAppend(std::string chain, char opera, char mode)
 {
 	std::stringstream ss;
@@ -26,14 +18,6 @@ std::string Server::modeToAppend(std::string chain, char opera, char mode)
 	return ss.str();
 }
 
-/**
- * Extrai os argumentos de um comando IRC, como nome, conjunto de modos e parâmetros.
- * 
- * @param cmd O comando IRC a ser analisado.
- * @param name Uma referência para armazenar o nome do comando.
- * @param modeset Uma referência para armazenar o conjunto de modos do comando.
- * @param params Uma referência para armazenar os parâmetros do comando.
- */
 void Server::getCmdArgs(std::string cmd,std::string& name, std::string& modeset ,std::string &params)
 {
 	std::istringstream stm(cmd);
@@ -44,12 +28,6 @@ void Server::getCmdArgs(std::string cmd,std::string& name, std::string& modeset 
 		params = cmd.substr(found);
 }
 
-/**
- * Divide uma string de parâmetros separados por vírgula em um vetor de strings.
- * 
- * @param params A string contendo os parâmetros separados por vírgula.
- * @return Um vetor de strings contendo os parâmetros separados.
- */
 std::vector<std::string> Server::splitParams(std::string params)
 {
 	if(!params.empty() && params[0] == ':')
@@ -65,12 +43,6 @@ std::vector<std::string> Server::splitParams(std::string params)
 	return tokens;
 }
 
-/**
- * Processa o comando MODE para um canal, realizando operações como definir restrições, limites e privilégios.
- * 
- * @param cmd O comando MODE a ser processado.
- * @param fd O descritor de arquivo do cliente que enviou o comando.
- */
 void Server::modeCommand(std::string& cmd, int fd)
 {
 	std::string channelName;
@@ -103,13 +75,13 @@ void Server::modeCommand(std::string& cmd, int fd)
 	{
 		senderror(442, GetClient(fd)->GetNickName(), channelName, GetClient(fd)->GetFd(), " :You're not on that channel\r\n"); return;
 	}
-	else if (modeset.empty()) // response with the channel modes (MODE #channel)
+	else if (modeset.empty())
 	{
 		_sendResponse(RPL_CHANNELMODES(cli->GetNickName(), channel->GetName(), channel->getModes()) + \
 		RPL_CREATIONTIME(cli->GetNickName(), channel->GetName(),channel->getCreationtime()),fd);
 		return ;
 	}
-	else if (!channel->get_admin(fd)) // client is not channel operator
+	else if (!channel->get_admin(fd))
 	{
 		_sendResponse(ERR_NOTOPERATOR(channel->GetName()), fd);
 		return ;
@@ -123,15 +95,15 @@ void Server::modeCommand(std::string& cmd, int fd)
 				opera = modeset[i];
 			else
 			{
-				if(modeset[i] == 'i')//invite mode
+				if(modeset[i] == 'i')
 					mode_chain << inviteOnly(channel , opera, mode_chain.str());
-				else if (modeset[i] == 't') //topic restriction mode
+				else if (modeset[i] == 't')
 					mode_chain << topicRestriction(channel, opera, mode_chain.str());
-				else if (modeset[i] == 'k') //password set/remove
+				else if (modeset[i] == 'k')
 					mode_chain <<  passwordMode(tokens, channel, pos, opera, fd, mode_chain.str(), arguments);
-				else if (modeset[i] == 'o') //set/remove user operator privilege
+				else if (modeset[i] == 'o')
 						mode_chain << operatorPrivilege(tokens, channel, pos, fd, opera, mode_chain.str(), arguments);
-				else if (modeset[i] == 'l') //set/remove channel limits
+				else if (modeset[i] == 'l')
 					mode_chain << channelLimit(tokens, channel, pos, opera, fd, mode_chain.str(), arguments);
 				else
 					_sendResponse(ERR_UNKNOWNMODE(cli->GetNickName(), channel->GetName(),modeset[i]),fd);
@@ -144,14 +116,6 @@ void Server::modeCommand(std::string& cmd, int fd)
  	channel->sendToAll(RPL_CHANGEMODE(cli->getHostname(), channel->GetName(), mode_chain.str(), arguments));
 }
 
-/**
- * Define ou remove o modo de convite apenas para um canal IRC.
- * 
- * @param channel O ponteiro para o canal onde o modo será definido ou removido.
- * @param opera O caractere que indica se o modo será definido (+) ou removido (-).
- * @param chain A cadeia de modos atual para o canal.
- * @return Uma string representando a alteração no modo de convite apenas, para ser adicionada à cadeia de modos.
- */
 std::string Server::inviteOnly(Channel *channel, char opera, std::string chain)
 {
 	std::string param;
@@ -171,14 +135,6 @@ std::string Server::inviteOnly(Channel *channel, char opera, std::string chain)
 	return param;
 }
 
-/**
- * Define ou remove o modo de restrição de tópico para um canal IRC.
- * 
- * @param channel O ponteiro para o canal onde o modo será definido ou removido.
- * @param opera O caractere que indica se o modo será definido (+) ou removido (-).
- * @param chain A cadeia de modos atual para o canal.
- * @return Uma string representando a alteração no modo de restrição de tópico, para ser adicionada à cadeia de modos.
- */
 std::string Server::topicRestriction(Channel *channel ,char opera, std::string chain)
 {
 	std::string param;
@@ -198,12 +154,6 @@ std::string Server::topicRestriction(Channel *channel ,char opera, std::string c
 	return param;
 }
 
-/**
- * Verifica se uma senha é válida de acordo com critérios específicos.
- * 
- * @param password A senha a ser verificada.
- * @return true se a senha é válida, false caso contrário.
- */
 bool validPassword(std::string password)
 {
 	if(password.empty())
@@ -216,18 +166,6 @@ bool validPassword(std::string password)
 	return true;
 }
 
-/**
- * Define ou remove o modo de senha para um canal.
- * 
- * @param tokens Vetor de tokens contendo os parâmetros para o modo de senha.
- * @param channel Ponteiro para o canal em questão.
- * @param pos Posição atual no vetor de tokens.
- * @param opera Operador de modo (+ ou -).
- * @param fd Descritor de arquivo do cliente.
- * @param chain Corrente de modos para o canal.
- * @param arguments Argumentos do modo (por exemplo, a senha).
- * @return Uma string contendo a representação do modo alterado.
- */
 std::string Server::passwordMode(std::vector<std::string> tokens, Channel *channel, size_t &pos, char opera, int fd, std::string chain, std::string &arguments)
 {
 	std::string param;
@@ -270,18 +208,6 @@ std::string Server::passwordMode(std::vector<std::string> tokens, Channel *chann
 	return param;
 }
 
-/**
- * Define ou remove o modo de privilégio de operador para um usuário em um canal.
- * 
- * @param tokens Vetor de tokens contendo os parâmetros para o modo de privilégio.
- * @param channel Ponteiro para o canal em questão.
- * @param pos Posição atual no vetor de tokens.
- * @param fd Descritor de arquivo do cliente.
- * @param opera Operador de modo (+ ou -).
- * @param chain Corrente de modos para o canal.
- * @param arguments Argumentos do modo (por exemplo, o nome de usuário).
- * @return Uma string contendo a representação do modo alterado.
- */
 std::string Server::operatorPrivilege(std::vector<std::string> tokens, Channel *channel, size_t& pos, int fd, char opera, std::string chain, std::string& arguments)
 {
 	std::string user;
@@ -327,29 +253,11 @@ std::string Server::operatorPrivilege(std::vector<std::string> tokens, Channel *
 	return param;
 }
 
-/**
- * Verifica se o limite do canal é válido.
- * 
- * @param limit A string contendo o limite do canal a ser verificado.
- * @return true se o limite for válido, false caso contrário.
- */
 bool Server::isvalidLimit(std::string& limit)
 {
 	return (!(limit.find_first_not_of("0123456789")!= std::string::npos) && std::atoi(limit.c_str()) > 0);
 }
 
-/**
- * Define ou remove o limite de usuários em um canal.
- * 
- * @param tokens Um vetor de strings contendo os tokens da operação MODE.
- * @param channel Um ponteiro para o canal onde a operação será aplicada.
- * @param pos A posição atual no vetor de tokens.
- * @param opera O operador da operação MODE ('+' para adicionar, '-' para remover).
- * @param fd O descritor de arquivo do cliente que está realizando a operação.
- * @param chain A cadeia de modos atual para o canal.
- * @param arguments Os argumentos adicionais para a operação MODE.
- * @return Uma string contendo a modificação no modo do canal.
- */
 std::string Server::channelLimit(std::vector<std::string> tokens,  Channel *channel, size_t &pos, char opera, int fd, std::string chain, std::string& arguments)
 {
 	std::string limit;

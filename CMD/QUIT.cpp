@@ -1,12 +1,5 @@
 #include "../INC/Server.hpp"
 
-/**
- * Encontra um parâmetro específico em um comando e extrai o restante do comando a partir desse ponto.
- * 
- * @param cmd O comando original a ser analisado.
- * @param tofind O parâmetro a ser encontrado no comando.
- * @param str A string em que o restante do comando será armazenado.
- */
 void FindQ(std::string cmd, std::string tofind, std::string &str)
 {
 	size_t i = 0;
@@ -27,12 +20,6 @@ void FindQ(std::string cmd, std::string tofind, std::string &str)
 	str = str.substr(i);
 }
 
-/**
- * Separa a mensagem de quit do comando, obtendo o motivo do quit.
- * 
- * @param cmd O comando de quit original.
- * @return O motivo do quit extraído do comando, ou uma mensagem padrão "Quit" se nenhum motivo for fornecido.
- */
 std::string	SplitQuit(std::string cmd)
 {
 	std::istringstream stm(cmd);
@@ -41,7 +28,7 @@ std::string	SplitQuit(std::string cmd)
 	FindQ(cmd, str, reason);
 	if (reason.empty())
 		return std::string("Quit");
-	if (reason[0] != ':'){ //if the message does not start with ':'
+	if (reason[0] != ':'){
 		for (size_t i = 0; i < reason.size(); i++){
 			if (reason[i] == ' ')
 				{reason.erase(reason.begin() + i, reason.end());break;}
@@ -51,12 +38,6 @@ std::string	SplitQuit(std::string cmd)
 	return reason;
 }
 
-/**
- * Processa o comando QUIT, removendo o cliente dos canais e desconectando-o do servidor.
- * 
- * @param cmd O comando QUIT recebido.
- * @param fd O descritor de arquivo associado ao cliente.
- */
 void Server::Quit(std::string cmd, int fd)
 {
 	std::string reason;

@@ -1,15 +1,4 @@
 #include "../INC/Server.hpp"
-/**
- * Convida um cliente para um canal específico.
- * RPL_INVITING (341)
- * ERR_NEEDMOREPARAMS (461)
- * ERR_NOSUCHCHANNEL (403)
- * ERR_NOTONCHANNEL (442)
- * ERR_CHANOPRIVSNEEDED (482)
- * ERR_USERONCHANNEL (443)
- * @param cmd O comando de convite recebido.
- * @param fd O descritor de arquivo do cliente que enviou o convite.
- */
 void Server::Invite(std::string &cmd, int &fd)
 {
 	std::vector<std::string> scmd = splitCmd(cmd);
