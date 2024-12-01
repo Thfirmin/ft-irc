@@ -200,6 +200,7 @@ void	Server::closeFds() {
 	}
 }
 
+// Inicia servidor IRC
 void	Server::init(int port, std::string pass)
 {
 	this->password = pass;
@@ -207,73 +208,109 @@ void	Server::init(int port, std::string pass)
 	this->setSeverSocket();
 
 	std::cout << "Waiting to accept a connection...\n";
+	// Loop da rotina do servior
 	while (Server::Signal == false)
 	{
+		// Verifica disponibilidade do servidor
 		if((poll(&fds[0],fds.size(),-1) == -1) && Server::Signal == false)
 			throw(std::runtime_error("poll() faild"));
+		// Itera TODOS os fds/sockets no programa (inclusive o servidor)
 		for (size_t i = 0; i < fds.size(); i++)
 		{
+			// Verifica se há um evento ocorrendo no fd em questão
 			if (fds[i].revents & POLLIN)
 			{
 				if (fds[i].fd == server_fdsocket)
-					this->acceptNewClient();
+					this->acceptNewClient(); // Aceita novo cliente (veio do servidor)
 				else
-					this->reciveNewData(fds[i].fd);
+					this->reciveNewData(fds[i].fd); // pega mensagem (veio do cliente)
 			}
 		}
 	}
 	closeFds();
 }
 
+
+// Levanta o servidor
 void	Server::setSeverSocket()
 {
 	int	en = 1;
 
+	// Settar o endereço do servidor
 	add.sin_family = AF_INET;
 	add.sin_addr.s_addr = INADDR_ANY;
 	add.sin_port = htons(port);
+
+	// Criar o canal de diálogo
 	server_fdsocket = socket(AF_INET, SOCK_STREAM, 0);
 	if(server_fdsocket == -1)
 		throw(std::runtime_error("faild to create socket"));
+
+	// Configura processo de reuso de porta em limpeza
 	if(setsockopt(server_fdsocket, SOL_SOCKET, SO_REUSEADDR, &en, sizeof(en)) == -1)
 		throw(std::runtime_error("faild to set option (SO_REUSEADDR) on socket"));
+
+	// Configura comportamento "Não bloqueante" no socket (não aguarda por muito tempo)
 	if (fcntl(server_fdsocket, F_SETFL, O_NONBLOCK) == -1)
 		throw(std::runtime_error("faild to set option (O_NONBLOCK) on socket"));
+
+	// configura socket com o endereço
 	if (bind(server_fdsocket, (struct sockaddr *)&add, sizeof(add)) == -1)
 		throw(std::runtime_error("faild to bind socket"));
+
+	// Torna socket na escuta
 	if (listen(server_fdsocket, SOMAXCONN) == -1)
 		throw(std::runtime_error("listen() faild"));
+
+	// Configura instancia do poll
 	new_cli.fd = server_fdsocket;
 	new_cli.events = POLLIN;
 	new_cli.revents = 0;
+	// Adiciona instancia ao array de instancias
 	fds.push_back(new_cli);
 }
 
+// Aceita um novo cliente
 void	Server::acceptNewClient()
 {
 	Client	cli;
 
+	// Inicializa variaveis para receber dados do cliente
 	memset(&cliadd, 0, sizeof(cliadd));
 	socklen_t len = sizeof(cliadd);
+
+	// Aceita a conexão e preenche as variaveis com os dados do cliente
 	int	incofd = accept(server_fdsocket, (sockaddr *)&(cliadd), &len);
 	if (incofd == -1)
-		{std::cout << "accept() failed" << std::endl; return;}
+	{
+		std::cout << "accept() failed" << std::endl;
+		return;
+	}
+
+	// Configura socket para ser não bloaqueante 
 	if (fcntl(incofd, F_SETFL, O_NONBLOCK) == -1)
-		{std::cout << "fcntl() failed" << std::endl; return;}
+	{
+		std::cout << "fcntl() failed" << std::endl;
+		return ;
+	}
+	// Criar instancia de poll
 	new_cli.fd = incofd;
 	new_cli.events = POLLIN;
 	new_cli.revents = 0;
 	cli.SetFd(incofd);
 	cli.setIpAdd(inet_ntoa((cliadd.sin_addr)));
+	// Adicionar cliente no array de clientes
 	clients.push_back(cli);
+	// Adicionar instancia no array de instancia
 	fds.push_back(new_cli);
 	std::cout << GRE << "Client <" << incofd << "> Connected" << WHI << std::endl;
 }
 
 void Server::reciveNewData(int fd)
 {
-	std::vector<std::string> cmd;
-	char buff[1024];
+	std::vector<std::string>	cmd;
+	char						buff[1024];
+
 	memset(buff, 0, sizeof(buff));
 	Client *cli = GetClient(fd);
 	ssize_t bytes = recv(fd, buff, sizeof(buff) - 1 , 0);
