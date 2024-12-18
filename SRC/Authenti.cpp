@@ -1,6 +1,7 @@
-#include "../INC/Server.hpp"
+#include "Server.hpp"
 
-void	Server::clientAuthen(int fd, std::string cmd) {
+void	Server::clientAuthen(int fd, std::string cmd) 
+{
 	Client *cli = GetClient(fd);
 	cmd = cmd.substr(4);
 	size_t pos = cmd.find_first_not_of("\t\v ");
@@ -25,7 +26,8 @@ void	Server::clientAuthen(int fd, std::string cmd) {
         _sendResponse(ERR_ALREADYREGISTERED(GetClient(fd)->GetNickName()), fd);
 }
 
-bool	Server::isValidNickname(std::string& nickname) {
+bool	Server::isValidNickname(std::string& nickname)
+{
 	if (!nickname.empty() && (nickname[0] == '&' || nickname[0] == '#' || nickname[0] == ':'))
 		return (false);
 	for (size_t i = 1; i < nickname.size(); i++)
@@ -36,7 +38,8 @@ bool	Server::isValidNickname(std::string& nickname) {
 	return (true);
 }
 
-bool	Server::nickNameInUse(std::string& nickname) {
+bool	Server::nickNameInUse(std::string& nickname)
+{
 	for (size_t i = 0; i < this->clients.size(); i++)
 	{
 		if (this->clients[i].GetNickName() == nickname)
@@ -45,7 +48,8 @@ bool	Server::nickNameInUse(std::string& nickname) {
 	return (false);
 }
 
-void	Server::setNickname(std::string cmd, int fd) {
+void	Server::setNickname(std::string cmd, int fd)
+{
 	std::string	inuse;
 	size_t		pos;
 
@@ -105,7 +109,8 @@ void	Server::setNickname(std::string cmd, int fd) {
 	}
 }
 
-void	Server::setUsername(std::string& cmd, int fd) {
+void	Server::setUsername(std::string& cmd, int fd)
+{
 	std::vector<std::string>	splited_cmd = splitCmd(cmd);
 
 	Client *cli = GetClient(fd); 

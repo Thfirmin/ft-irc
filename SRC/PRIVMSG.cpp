@@ -1,4 +1,4 @@
-#include "../INC/Server.hpp"
+#include "Server.hpp"
 
 void FindPM(std::string cmd, std::string tofind, std::string &str)
 {

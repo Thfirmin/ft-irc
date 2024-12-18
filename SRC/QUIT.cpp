@@ -1,4 +1,4 @@
-#include "../INC/Server.hpp"
+#include "Server.hpp"
 
 void FindQ(std::string cmd, std::string tofind, std::string &str)
 {

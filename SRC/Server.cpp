@@ -1,18 +1,21 @@
-#include "../INC/Server.hpp"
+#include "Server.hpp"
 
 bool	Server::isBotfull = false;
 
-Server::Server() {
+Server::Server()
+{
 	this->server_fdsocket = -1;
 }
 
 Server::~Server() {}
 
-Server::Server(Server const &src) {
+Server::Server(Server const &src)
+{
 	*this = src;
 }
 
-Server &Server::operator=(Server const &src) {
+Server &Server::operator=(Server const &src)
+{
 	if (this != &src)
 	{
 		this->port = src.port;
@@ -26,15 +29,18 @@ Server &Server::operator=(Server const &src) {
 	return (*this);
 }
 
-int Server::GetPort() {
+int Server::GetPort()
+{
 	return (this->port);
 }
 
-int Server::GetFd() {
+int Server::GetFd()
+{
 	return (this->server_fdsocket);
 }
 
-Client *Server::GetClient(int fd) {
+Client *Server::GetClient(int fd) 
+{
 	for (size_t i = 0; i < this->clients.size(); i++)
 	{
 		if (this->clients[i].GetFd() == fd)
@@ -43,7 +49,8 @@ Client *Server::GetClient(int fd) {
 	return (NULL);
 }
 
-Client *Server::GetClientNick(std::string nickname) {
+Client *Server::GetClientNick(std::string nickname) 
+{
 	for (size_t i = 0; i < this->clients.size(); i++)
 	{
 		if (this->clients[i].GetNickName() == nickname)
@@ -62,35 +69,43 @@ Channel *Server::GetChannel(std::string name)
 	return (NULL);
 }
 
-void Server::SetFd(int fd) {
+void Server::SetFd(int fd) 
+{
 	this->server_fdsocket = fd;
 }
 
-void Server::SetPort(int port) {
+void Server::SetPort(int port) 
+{
 	this->port = port;
 }
 
-void Server::SetPassword(std::string password) {
+void Server::SetPassword(std::string password) 
+{
 	this->password = password;
 }
 
-std::string Server::GetPassword() {
+std::string Server::GetPassword() 
+{
 	return (this->password);
 }
 
-void Server::AddClient(Client newClient) {
+void Server::AddClient(Client newClient) 
+{
 	this->clients.push_back(newClient);
 }
 
-void Server::AddChannel(Channel newChannel) {
+void Server::AddChannel(Channel newChannel) 
+{
 	this->channels.push_back(newChannel);
 }
 
-void Server::AddFds(pollfd newFd) {
+void Server::AddFds(pollfd newFd) 
+{
 	this->fds.push_back(newFd);
 }
 
-void Server::RemoveClient(int fd) {
+void Server::RemoveClient(int fd) 
+{
 	for (size_t i = 0; i < this->clients.size(); i++)
 	{
 		if (this->clients[i].GetFd() == fd)
@@ -101,7 +116,8 @@ void Server::RemoveClient(int fd) {
 	}
 }
 
-void Server::RemoveChannel(std::string name) {
+void Server::RemoveChannel(std::string name) 
+{
 	for (size_t i = 0; i < this->channels.size(); i++)
 	{
 		if (this->channels[i].GetName() == name)
@@ -112,7 +128,8 @@ void Server::RemoveChannel(std::string name) {
 	}
 }
 
-void Server::RemoveFds(int fd) {
+void Server::RemoveFds(int fd) 
+{
 	for (size_t i = 0; i < this->fds.size(); i++)
 	{
 		if (this->fds[i].fd == fd)
@@ -123,7 +140,8 @@ void Server::RemoveFds(int fd) {
 	}
 }
 
-void	Server::RmChannels(int fd) {
+void	Server::RmChannels(int fd) 
+{
 	for (size_t i = 0; i < this->channels.size(); i++)
 	{
 		int	flag = 0;
@@ -187,7 +205,8 @@ void	Server::SignalHandler(int signum)
 	Server::Signal = true;
 }
 
-void	Server::closeFds() {
+void	Server::closeFds() 
+{
 	for(size_t i = 0; i < clients.size(); i++)
 	{
 		std::cout << RED << "Client <" << clients[i].GetFd() << "> Disconnected" << WHI << std::endl;

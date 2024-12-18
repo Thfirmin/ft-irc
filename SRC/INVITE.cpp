@@ -1,4 +1,4 @@
-#include "../INC/Server.hpp"
+#include "Server.hpp"
 void Server::Invite(std::string &cmd, int &fd)
 {
 	std::vector<std::string> scmd = splitCmd(cmd);

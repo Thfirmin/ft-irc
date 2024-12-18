@@ -1,4 +1,4 @@
-#include "../INC/Server.hpp"
+#include "Server.hpp"
 
 std::string Server::tTopic()
 {

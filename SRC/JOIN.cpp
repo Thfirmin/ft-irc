@@ -1,4 +1,4 @@
-#include "../INC/Server.hpp"
+#include "Server.hpp"
 
 int Server::SplitJoin(std::vector<std::pair<std::string, std::string> > &token, std::string cmd, int fd)
 {

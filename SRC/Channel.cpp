@@ -1,6 +1,7 @@
-#include "../INC/Channel.hpp"
+#include "Channel.hpp"
 
-Channel::Channel() {
+Channel::Channel()
+{
 	this->invit_only = 0;
 	this->topic = 0;
 	this->key = 0;
@@ -16,11 +17,13 @@ Channel::Channel() {
 
 Channel::~Channel() {}
 
-Channel::Channel(Channel const &src) {
+Channel::Channel(Channel const &src)
+{
 	*this = src;
 }
 
-Channel	&Channel::operator=(Channel const &src) {
+Channel	&Channel::operator=(Channel const &src)
+{
 	if (this != &src)
 	{
 		this->invit_only = src.invit_only;
@@ -39,83 +42,101 @@ Channel	&Channel::operator=(Channel const &src) {
 	return (*this);
 }
 
-void	Channel::SetInvitOnly(int invit_only) {
+void	Channel::SetInvitOnly(int invit_only)
+{
 	this->invit_only = invit_only;
 }
 
-void	Channel::SetTopic(int topic) {
+void	Channel::SetTopic(int topic)
+{
 	this->topic = topic;
 }
 
-void	Channel::SetTime(std::string time) {
+void	Channel::SetTime(std::string time)
+{
 	this->time_creation = time;
 }
 
-
-void	Channel::SetKey(int key) {
+void	Channel::SetKey(int key)
+{
 	this->key = key;
 }
 
-void	Channel::SetLimit(int limit) {
+void	Channel::SetLimit(int limit)
+{
 	this->limit = limit;
 }
 
-void	Channel::SetTopicName(std::string topic_name) {
+void	Channel::SetTopicName(std::string topic_name)
+{
 	this->topic_name = topic_name;
 }
 
-void	Channel::SetPassword(std::string password) {
+void	Channel::SetPassword(std::string password)
+{
 	this->password = password;
 }
 
-void	Channel::SetName(std::string name) {
+void	Channel::SetName(std::string name)
+{
 	this->name = name;
 }
 
-void	Channel::setTopicRestriction(bool value) {
+void	Channel::setTopicRestriction(bool value)
+{
 	this->topicRestriction = value;
 }
 
-void	Channel::setModeAtindex(size_t index, bool mode) {
+void	Channel::setModeAtindex(size_t index, bool mode)
+{
 	modes[index].second = mode;
 }
 
-void	Channel::setCreateiontime() {
+void	Channel::setCreateiontime()
+{
 	std::time_t _time = std::time(NULL);
 	std::ostringstream oss;
 	oss << _time;
 	this->created_at = std::string(oss.str());
 }
 
-int	Channel::GetInvitOnly() {
+int	Channel::GetInvitOnly()
+{
 	return (this->invit_only);
 }
 
-int	Channel::GetTopic() {
+int	Channel::GetTopic()
+{
 	return (this->topic);
 }
 
-int	Channel::GetKey() {
+int	Channel::GetKey()
+{
 	return (this->key);
 }
 
-int	Channel::GetLimit() {
+int	Channel::GetLimit()
+{
 	return (this->limit);
 }
 
-int	Channel::GetClientsNumber() {
+int	Channel::GetClientsNumber()
+{
 	return (this->clients.size() + this->admins.size());
 }
 
-bool	Channel::GettopicRestriction() const {
+bool	Channel::GettopicRestriction() const
+{
 	return (this->topicRestriction);
 }
 
-bool	Channel::getModeAtindex(size_t index) {
+bool	Channel::getModeAtindex(size_t index)
+{
 	return (modes[index].second);
 }
 
-bool	Channel::clientInChannel(std::string &nick) {
+bool	Channel::clientInChannel(std::string &nick)
+{
 	for(size_t i = 0; i < clients.size(); i++)
 	{
 		if(clients[i].GetNickName() == nick)
@@ -129,27 +150,33 @@ bool	Channel::clientInChannel(std::string &nick) {
 	return (false);
 }
 
-std::string	Channel::GetTopicName() {
+std::string	Channel::GetTopicName()
+{
 	return (this->topic_name);
 }
 
-std::string	Channel::GetPassword() {
+std::string	Channel::GetPassword()
+{
 	return (this->password);
 }
 
-std::string	Channel::GetName() {
+std::string	Channel::GetName()
+{
 	return (this->name);
 }
 
-std::string	Channel::GetTime() {
+std::string	Channel::GetTime()
+{
 	return (this->time_creation);
 }
 
-std::string	Channel::getCreationtime() {
+std::string	Channel::getCreationtime()
+{
 	return (created_at);
 }
 
-std::string	Channel::getModes() {
+std::string	Channel::getModes()
+{
 	std::string	mode;
 
 	for(size_t i = 0; i < modes.size(); i++)
@@ -162,7 +189,8 @@ std::string	Channel::getModes() {
 	return (mode);
 }
 
-std::string	Channel::clientChannelList() {
+std::string	Channel::clientChannelList()
+{
 	std::string	list;
 
 	for(size_t i = 0; i < admins.size(); i++)
@@ -182,7 +210,8 @@ std::string	Channel::clientChannelList() {
 	return (list);
 }
 
-Client	*Channel::get_client(int fd) {
+Client	*Channel::get_client(int fd)
+{
 	for (std::vector<Client>::iterator it = clients.begin(); it != clients.end(); ++it)
 	{
 		if (it->GetFd() == fd)
@@ -191,7 +220,8 @@ Client	*Channel::get_client(int fd) {
 	return (NULL);
 }
 
-Client	*Channel::get_admin(int fd) {
+Client	*Channel::get_admin(int fd)
+{
 	for (std::vector<Client>::iterator it = admins.begin(); it != admins.end(); ++it)
 	{
 		if (it->GetFd() == fd)
@@ -200,7 +230,8 @@ Client	*Channel::get_admin(int fd) {
 	return (NULL);
 }
 
-Client	*Channel::GetClientInChannel(std::string name) {
+Client	*Channel::GetClientInChannel(std::string name)
+{
 	for (std::vector<Client>::iterator it = clients.begin(); it != clients.end(); ++it)
 	{
 		if (it->GetNickName() == name)
@@ -214,15 +245,18 @@ Client	*Channel::GetClientInChannel(std::string name) {
 	return (NULL);
 }
 
-void	Channel::addClient(Client newClient) {
+void	Channel::addClient(Client newClient)
+{
 	clients.push_back(newClient);
 }
 
-void	Channel::addAdmin(Client newClient) {
+void	Channel::addAdmin(Client newClient)
+{
 	admins.push_back(newClient);
 }
 
-void	Channel::removeClient(int fd) {
+void	Channel::removeClient(int fd)
+{
 	for (std::vector<Client>::iterator it = clients.begin(); it != clients.end(); ++it)
 	{
 		if (it->GetFd() == fd)
@@ -233,7 +267,8 @@ void	Channel::removeClient(int fd) {
 	}
 }
 
-void	Channel::removeAdmin(int fd) {
+void	Channel::removeAdmin(int fd)
+{
 	for (std::vector<Client>::iterator it = admins.begin(); it != admins.end(); ++it)
 	{
 		if (it->GetFd() == fd)
@@ -244,7 +279,8 @@ void	Channel::removeAdmin(int fd) {
 	}
 }
 
-bool	Channel::changeClientToAdmin(std::string& nick) {
+bool	Channel::changeClientToAdmin(std::string& nick) 
+{
 	size_t	i = 0;
 
 	for(; i < clients.size(); i++)
@@ -261,7 +297,8 @@ bool	Channel::changeClientToAdmin(std::string& nick) {
 	return (false);
 }
 
-bool	Channel::changeAdminToClient(std::string& nick) {
+bool	Channel::changeAdminToClient(std::string& nick) 
+{
 	size_t	i = 0;
 
 	for(; i < admins.size(); i++)
@@ -278,7 +315,8 @@ bool	Channel::changeAdminToClient(std::string& nick) {
 	return (false);
 }
 
-void	Channel::sendToAll(std::string rpl1) {
+void	Channel::sendToAll(std::string rpl1) 
+{
 	for(size_t i = 0; i < admins.size(); i++)
 	{
 		if(send(admins[i].GetFd(), rpl1.c_str(), rpl1.size(), 0) == -1)
@@ -291,7 +329,8 @@ void	Channel::sendToAll(std::string rpl1) {
 	}
 }
 
-void	Channel::sendToAll(std::string rpl1, int fd) {
+void	Channel::sendToAll(std::string rpl1, int fd) 
+{
 	for(size_t i = 0; i < admins.size(); i++)
 	{
 		if(admins[i].GetFd() != fd)
