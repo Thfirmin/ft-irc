@@ -241,7 +241,7 @@ void	Server::init(int port, std::string pass)
 			}
 		}
 	}
-	closeFds();
+	this->closeFds();
 }
 
 void	Server::setSeverSocket()
@@ -256,8 +256,6 @@ void	Server::setSeverSocket()
 		throw(std::runtime_error("faild to create socket"));
 	if(setsockopt(server_fdsocket, SOL_SOCKET, SO_REUSEADDR, &en, sizeof(en)) == -1)
 		throw(std::runtime_error("faild to set option (SO_REUSEADDR) on socket"));
-	//if (fcntl(server_fdsocket, F_SETFL, O_NONBLOCK) == -1)
-	//	throw(std::runtime_error("faild to set option (O_NONBLOCK) on socket"));
 	if (bind(server_fdsocket, (struct sockaddr *)&add, sizeof(add)) == -1)
 		throw(std::runtime_error("faild to bind socket"));
 	if (listen(server_fdsocket, SOMAXCONN) == -1)
@@ -277,8 +275,6 @@ void	Server::acceptNewClient()
 	int	incofd = accept(server_fdsocket, (sockaddr *)&(cliadd), &len);
 	if (incofd == -1)
 		{std::cout << "accept() failed" << std::endl; return;}
-	//if (fcntl(incofd, F_SETFL, O_NONBLOCK) == -1)
-	//	{std::cout << "fcntl() failed" << std::endl; return;}
 	new_cli.fd = incofd;
 	new_cli.events = POLLIN;
 	new_cli.revents = 0;
